@@ -1,0 +1,34 @@
+//print("Hello");
+
+import uk.ac.mrc.hgu.Wlz.WlzFileInputStream;
+import uk.ac.mrc.hgu.Wlz.WlzObject;
+
+path = "wlzobjs/lobster3d.wlz";
+path = "wlzobjs/artic_04_18_06.wlz";
+in = new WlzFileInputStream(path);
+object = WlzObject.WlzReadObj(in);
+facts = new String[] { "" };
+WlzObject.WlzObjectFacts(object, null, facts, 1);
+print(facts[0]);
+
+import uk.ac.mrc.hgu.Wlz.WlzIVertex2;
+
+bBox = WlzObject.WlzBoundingBox2I(object);
+origin = new WlzIVertex2(bBox.xMin, bBox.yMin);
+byte[][][] dstArrayDat = new byte[1][][];
+dstArrayDat[0] = null;
+WlzIVertex2 size = new WlzIVertex2(bBox.xMax - bBox.xMin + 1,
+				 bBox.yMax - bBox.yMin + 1);
+WlzIVertex2[] dstSize = new WlzIVertex2[1];
+dstSize[0] = null;
+WlzObject.WlzToUArray2D(dstSize, dstArrayDat, object, origin, size, 0);
+
+import ij.ImagePlus;
+import ij.process.ByteProcessor;
+
+byte[] pixels = new byte[size.vtX * size.vtY];
+for (j = 0; j < size.vtY; j++)
+	System.arraycopy(dstArrayDat[0][j], 0, pixels, j * size.vtX, size.vtX);
+ip = new ByteProcessor(size.vtX, size.vtY, pixels);
+image = new ImagePlus("Hello Woolz", ip);
+image.show();
